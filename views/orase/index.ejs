@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestiune Orase - MVC</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f8fafc; color: #1e293b; }
+    h1 { color: #1b365d; margin-bottom: 20px; }
+    .btn { background: #1b365d; color: white; padding: 9px 16px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; }
+    .btn:hover { background: #254a80; }
+    .btn-del { background: #dc2626; font-size: 0.85rem; padding: 6px 12px; }
+    .btn-del:hover { background: #b91c1c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background-color: #1b365d; color: white; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; }
+    tr:hover { background-color: #f1f5f9; }
+  </style>
+</head>
+<body>
+  <h1>Administrare Orașe (Arhitectura MVC)</h1>
+  <a href="/orase/add" class="btn">+ Adaugă Oraș Nou</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nume Oraș</th>
+        <th>Județ</th>
+        <th>Cimitire Înregistrate (Eager Loading)</th>
+        <th>Acțiuni</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orase.forEach(function(oras) { %>
+        <tr>
+          <td><%= oras.id_oras %></td>
+          <td><strong><%= oras.nume_oras %></strong></td>
+          <td><%= oras.judet || '-' %></td>
+          <td>
+            <% if (oras.cimitir && oras.cimitir.length > 0) { %>
+              <span style="color: #047857; font-weight: bold;"><%= oras.cimitir.length %> cimitir(e)</span>
+            <% } else { %>
+              <em style="color: #94a3b8;">Fără cimitire</em>
+            <% } %>
+          </td>
+          <td>
+            <a href="/orase/delete/<%= oras.id_oras %>" class="btn btn-del" onclick="return confirm('Confirmați ștergerea acestui oraș?')">Șterge</a>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,8 @@
+node_modules/
+.env
+*.log
+Laborator6_MVC_Eternis.zip
+Tema_Laborator6_MVC.zip
+reset_admin.js
+seed_plans.js
+remove_old_plan.js

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Adăugare Oraș</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f8fafc; }
+    .card { background: white; padding: 30px; border-radius: 8px; max-width: 450px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; color: #1b365d; }
+    label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; color: #334155; }
+    input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box; }
+    .actions { margin-top: 25px; }
+    button { background: #1b365d; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #254a80; }
+    a { margin-left: 15px; color: #64748b; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Adaugă Oraș Nou</h2>
+    <form action="/orase/add" method="POST">
+      <label for="nume_oras">Nume Oraș:</label>
+      <input type="text" id="nume_oras" name="nume_oras" required placeholder="ex: Constanta">
+
+      <label for="judet">Județ:</label>
+      <input type="text" id="judet" name="judet" placeholder="ex: Constanta">
+
+      <div class="actions">
+        <button type="submit">Salvează în Baza de Date</button>
+        <a href="/orase">Anulează</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

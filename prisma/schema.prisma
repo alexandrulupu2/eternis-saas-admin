@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model oras {
+  id_oras   Int       @id @default(autoincrement())
+  nume_oras String    @db.VarChar(100)
+  judet     String?   @db.VarChar(50)
+  cimitir   cimitir[]
+}
+
+model cimitir {
+  id_cimitir     Int                @id @default(autoincrement())
+  id_oras        Int
+  locuri_vacante Int
+  adresa         String?            @db.VarChar(255)
+  oras           oras               @relation(fields: [id_oras], references: [id_oras], onDelete: NoAction, onUpdate: NoAction)
+  programari     programari[]
+  parcele        parcela_cimitir[]
+}
+
+model parcela_cimitir {
+  id_parcela     Int      @id @default(autoincrement())
+  numar_parcela  String   @db.VarChar(50)
+  capacitate     Int      @default(1)
+  id_cimitir     Int
+  cimitir        cimitir  @relation(fields: [id_cimitir], references: [id_cimitir], onDelete: Cascade)
+}
+
+model clienti {
+  id_client      Int           @id @default(autoincrement())
+  nume_client    String        @db.VarChar(50)
+  prenume_client String        @db.VarChar(50)
+  telefon_client String?       @db.VarChar(15)
+  email_client   String?       @db.VarChar(100)
+  adresa_client  String?
+  decedati       decedati[]
+  programari     programari[]
+  utilizatori    utilizatori[]
+}
+
+model decedati {
+  id_decedat           Int            @id @default(autoincrement())
+  nume_decedat         String         @db.VarChar(50)
+  prenume_decedat      String         @db.VarChar(50)
+  data_nastere_decedat DateTime?      @db.Date
+  data_deces           DateTime       @db.Date
+  id_client            Int
+  clienti              clienti        @relation(fields: [id_client], references: [id_client], onDelete: NoAction, onUpdate: NoAction)
+  programari           programari[]
+  conversii_ai         conversii_ai[]
+}
+
+model servicii {
+  id_serviciu         Int                   @id @default(autoincrement())
+  nume_serviciu       String                @db.VarChar(100)
+  pret_serviciu       Decimal               @db.Decimal(10, 2)
+  programari_servicii programari_servicii[]
+}
+
+model abonamente {
+  id_abonament        Int                   @id @default(autoincrement())
+  nume_plan           String                @db.VarChar(50)
+  credite_lunare      Int
+  pret_simulat        Decimal               @db.Decimal(10, 2)
+  utilizatori         utilizatori[]
+  tranzactii_simulate tranzactii_simulate[]
+}
+
+model utilizatori {
+  id_utilizator       Int                   @id @default(autoincrement())
+  id_client           Int?
+  email_utilizator    String                @unique @db.VarChar(100)
+  parola_hash         String                @db.VarChar(255)
+  rol_utilizator      String                @db.VarChar(20)
+  id_abonament        Int
+  credite_disponibile Int                   @default(0)
+  data_creare         DateTime              @default(now()) @db.Timestamp(6)
+  abonamente          abonamente            @relation(fields: [id_abonament], references: [id_abonament], onDelete: NoAction, onUpdate: NoAction)
+  clienti             clienti?              @relation(fields: [id_client], references: [id_client], onUpdate: NoAction)
+  conversii_ai        conversii_ai[]
+  tranzactii_simulate tranzactii_simulate[]
+}
+
+model programari {
+  id_programare       Int                   @id @default(autoincrement())
+  id_client           Int
+  id_decedat          Int
+  id_cimitir          Int
+  data_programare     DateTime              @db.Date
+  data_inmormantare   DateTime              @db.Date
+  observatii          String?
+  clienti             clienti               @relation(fields: [id_client], references: [id_client], onDelete: NoAction, onUpdate: NoAction)
+  decedati            decedati              @relation(fields: [id_decedat], references: [id_decedat], onDelete: NoAction, onUpdate: NoAction)
+  cimitir             cimitir               @relation(fields: [id_cimitir], references: [id_cimitir], onDelete: NoAction, onUpdate: NoAction)
+  programari_servicii programari_servicii[]
+}
+
+model programari_servicii {
+  id_programare Int
+  id_serviciu   Int
+  programari    programari @relation(fields: [id_programare], references: [id_programare], onDelete: Cascade, onUpdate: NoAction)
+  servicii      servicii   @relation(fields: [id_serviciu], references: [id_serviciu], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id_programare, id_serviciu])
+}
+
+model conversii_ai {
+  id_conversie      Int         @id @default(autoincrement())
+  id_utilizator     Int
+  id_decedat        Int?
+  tip_conversie     String      @db.VarChar(50)
+  prompt_input      String
+  rezultat_output   String
+  credite_consumate Int
+  data_conversie    DateTime    @default(now()) @db.Timestamp(6)
+  utilizatori       utilizatori @relation(fields: [id_utilizator], references: [id_utilizator], onDelete: NoAction, onUpdate: NoAction)
+  decedati          decedati?   @relation(fields: [id_decedat], references: [id_decedat], onUpdate: NoAction)
+}
+
+model tranzactii_simulate {
+  id_tranzactie     Int         @id @default(autoincrement())
+  id_utilizator     Int
+  id_abonament      Int
+  suma_simulata     Decimal     @db.Decimal(10, 2)
+  credite_adaugate  Int
+  status_tranzactie String      @db.VarChar(30)
+  data_tranzactie   DateTime    @default(now()) @db.Timestamp(6)
+  abonamente        abonamente  @relation(fields: [id_abonament], references: [id_abonament], onDelete: NoAction, onUpdate: NoAction)
+  utilizatori       utilizatori @relation(fields: [id_utilizator], references: [id_utilizator], onDelete: NoAction, onUpdate: NoAction)
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Eternis</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background-color: #0f172a; color: #f8fafc; }
+    .sidebar { width: 240px; background: #1e293b; height: 100vh; position: fixed; padding: 25px 20px; border-right: 1px solid #334155; }
+    .sidebar h2 { font-size: 1.3rem; color: #38bdf8; margin-top: 0; }
+    .sidebar a { display: block; color: #94a3b8; text-decoration: none; padding: 10px 12px; margin: 5px 0; border-radius: 6px; font-weight: 500; }
+    .sidebar a.active, .sidebar a:hover { background: #0284c7; color: white; }
+    .main { margin-left: 240px; padding: 40px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 35px; }
+    .stat-card { background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid #334155; }
+    .stat-card p { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+    .stat-card h3 { margin: 8px 0 0; font-size: 1.8rem; color: #f8fafc; }
+    table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 10px; overflow: hidden; border: 1px solid #334155; }
+    th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #334155; vertical-align: middle; }
+    th { background: #0f172a; color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-user { background: #0369a1; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+    .btn-add { background: #0284c7; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; }
+    .btn-add:hover { background: #0369a1; }
+    
+    .actions-cell { display: flex; align-items: center; gap: 15px; }
+    .btn-credit-link { color: #10b981; text-decoration: none; font-weight: 600; font-size: 0.88rem; cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+    .btn-credit-link:hover { text-decoration: underline; color: #34d399; }
+    .btn-del { color: #f87171; text-decoration: none; font-weight: 600; font-size: 0.88rem; }
+    .btn-del:hover { text-decoration: underline; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 30px; width: 420px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+    .modal-card h3 { margin-top: 0; color: #38bdf8; font-size: 1.3rem; }
+    .modal-card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+    .modal-card label { display: block; margin-bottom: 8px; color: #cbd5e1; font-size: 0.88rem; font-weight: 500; }
+    .modal-card input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; margin-bottom: 20px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .btn-save-modal { background: #10b981; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-save-modal:hover { background: #059669; }
+    .btn-close-modal { background: #334155; color: #f8fafc; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-close-modal:hover { background: #475569; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>ETERNIS ADMIN</h2>
+    <a href="/admin" class="active">👥 Parohii Înrolate</a>
+    <a href="/admin/user/add">➕ Înrolare Preot</a>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <div>
+        <h1 style="margin: 0;">Panou de Administrare</h1>
+        <p style="margin: 5px 0 0; color: #94a3b8;">Gestiune conturi parohii/preoți și credite AI (Arhitectură MVC)</p>
+      </div>
+      <a href="/admin/user/add" class="btn-add">+ Înrolează Parohie / Preot</a>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p>Parohii Înrolate (USER)</p>
+        <h3><%= stats.totalUtilizatori %></h3>
+      </div>
+      <div class="stat-card">
+        <p>Familii Înregistrate</p>
+        <h3><%= stats.totalClienti %></h3>
+      </div>
+      <div class="stat-card">
+        <p>Programări Active</p>
+        <h3><%= stats.totalProgramari %></h3>
+      </div>
+      <div class="stat-card">
+        <p>Cimitire Înrolate</p>
+        <h3><%= stats.totalCimitire %></h3>
+      </div>
+    </div>
+
+    <h2>Conturi de Preoți / Parohii Înrolate</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email (Login Preot)</th>
+          <th>Rol</th>
+          <th>Plan Abonament</th>
+          <th>Credite AI Disponibile</th>
+          <th>Data Înrolării</th>
+          <th>Acțiuni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (utilizatori.length === 0) { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: #94a3b8; padding: 25px;">Nu există nicio parohie înrolată încă.</td>
+          </tr>
+        <% } %>
+        <% utilizatori.forEach(function(u) { %>
+          <tr>
+            <td>#<%= u.id_utilizator %></td>
+            <td><strong><%= u.email_utilizator %></strong></td>
+            <td><span class="badge-user"><%= u.rol_utilizator %></span></td>
+            <td><%= u.abonamente ? u.abonamente.nume_plan : 'Fără plan' %></td>
+            <td><strong style="color: #38bdf8;"><%= u.credite_disponibile %> credite</strong></td>
+            <td style="color: #94a3b8; font-size: 0.9rem;"><%= new Date(u.data_creare).toLocaleDateString('ro-RO') %></td>
+            <td>
+              <div class="actions-cell">
+                <button type="button" class="btn-credit-link" onclick="openCreditsModal('<%= u.id_utilizator %>', '<%= u.email_utilizator %>')">
+                  Adaugă credite suplimentare
+                </button>
+                <a href="/admin/user/delete/<%= u.id_utilizator %>" class="btn-del" onclick="return confirm('Sigur doriți să ștergeți acest cont de preot?')">Șterge</a>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="creditsModal" class="modal-overlay">
+    <div class="modal-card">
+      <h3>Alocare Credite Suplimentare</h3>
+      <p id="modalUserEmail">Cont: -</p>
+      <form id="creditsForm" method="POST" action="">
+        <label for="crediteInput">Număr de credite bonus de adăugat:</label>
+        <input type="number" id="crediteInput" name="credite_bonus" min="1" value="50" required autofocus>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn-close-modal" onclick="closeCreditsModal()">Anulare</button>
+          <button type="submit" class="btn-save-modal">Confirmă Alocarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openCreditsModal(userId, userEmail) {
+      document.getElementById('modalUserEmail').innerText = 'Cont: ' + userEmail;
+      document.getElementById('creditsForm').action = '/admin/user/add-credits/' + userId;
+      document.getElementById('creditsModal').style.display = 'flex';
+    }
+
+    function closeCreditsModal() {
+      document.getElementById('creditsModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('creditsModal');
+      if (event.target === modal) {
+        closeCreditsModal();
+      }
+    };
+  </script>
+</body>
+</html>
