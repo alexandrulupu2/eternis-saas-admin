@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Eternis - Servicii Funerare & SaaS Parohial</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Georgia', serif, -apple-system, sans-serif;
+      background: #000000;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      width: 100vw;
+      overflow-x: hidden;
+    }
+    
+    .wrapper {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* PARTEA STANGA: IMAGINEA ETERNIS SI SLOGANUL */
+    .hero-side {
+      flex: 1.4;
+      background: #050505;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-right: 3px solid #d4af37;
+      box-shadow: 15px 0 40px rgba(0,0,0,0.9);
+      text-align: center;
+    }
+
+    .hero-container {
+      max-width: 680px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .exact-image-box {
+      width: 100%;
+      margin-bottom: 25px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #d4af37;
+      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4);
+    }
+
+    .exact-image-box img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .values-text {
+      color: #d4af37;
+      font-size: 0.95rem;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin-bottom: 25px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+    }
+
+    .hero-slogan-box {
+      background: rgba(15, 15, 18, 0.9);
+      border: 1px solid rgba(212, 175, 55, 0.6);
+      border-radius: 14px;
+      padding: 24px 30px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+      position: relative;
+      width: 100%;
+    }
+
+    .quote-mark {
+      color: #d4af37;
+      font-size: 2.8rem;
+      line-height: 0;
+      vertical-align: -12px;
+      margin: 0 4px;
+    }
+
+    .hero-slogan {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fef08a;
+      line-height: 1.4;
+      font-style: italic;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+    }
+
+    .slogan-subtext {
+      color: #a1a1aa;
+      font-size: 0.82rem;
+      margin-top: 10px;
+      font-family: -apple-system, sans-serif;
+      letter-spacing: 1px;
+    }
+
+    /* PARTEA DREAPTA: AUTENTIFICARE */
+    .form-side {
+      flex: 0.8;
+      background: #09090b;
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 500px;
+    }
+
+    .login-box {
+      background: #121215;
+      padding: 40px 35px;
+      border-radius: 16px;
+      border: 1px solid #27272a;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+    }
+
+    .form-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+      text-align: center;
+      letter-spacing: 1px;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .form-subtitle {
+      color: #71717a;
+      font-size: 0.88rem;
+      margin-bottom: 30px;
+      text-align: center;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .error-box {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .form-group { margin-bottom: 22px; }
+    label { display: block; margin-bottom: 8px; color: #e4e4e7; font-size: 0.9rem; font-weight: 600; font-family: -apple-system, sans-serif; }
+    
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #3f3f46;
+      background: #09090b;
+      color: white;
+      font-size: 1rem;
+      font-family: -apple-system, sans-serif;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+      color: #000000;
+      border: none;
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      margin-top: 10px;
+      text-transform: uppercase;
+      font-family: -apple-system, sans-serif;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    .footer-note {
+      margin-top: 25px;
+      color: #52525b;
+      font-size: 0.8rem;
+      text-align: center;
+      font-family: -apple-system, sans-serif;
+    }
+
+    @media (max-width: 1100px) {
+      .wrapper { flex-direction: column; }
+      .hero-side { padding: 40px; }
+      .form-side { max-width: 100%; padding: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="hero-side">
+      <div class="hero-container">
+        <div class="exact-image-box">
+          <img src="/images/imagine.jpg" alt="Eternis Pachete Servicii Funerare">
+        </div>
+
+        <div class="values-text">RESPECT • DEMNITATE • COMPASIUNE</div>
+
+        <div class="hero-slogan-box">
+          <span class="quote-mark">“</span>
+          <span class="hero-slogan">Vă creăm tot confortul, să se simtă bine mortul.</span>
+          <span class="quote-mark">”</span>
+          <div class="slogan-subtext">SERVICII PAROHIALE ȘI FUNERARE COMPLETE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-side">
+      <div class="login-box">
+        <h2 class="form-title">AUTENTIFICARE</h2>
+        <p class="form-subtitle">Introduceți credențialele de acces în platformă</p>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="error-box"><%= error %></div>
+        <% } %>
+
+        <form action="/login" method="POST">
+          <div class="form-group">
+            <label for="email">Adresă Email:</label>
+            <input type="email" id="email" name="email" placeholder="nume@parohie.ro sau admin@eternis.ro" required autofocus>
+          </div>
+
+          <div class="form-group">
+            <label for="parola">Parolă Acces:</label>
+            <input type="password" id="parola" name="parola" placeholder="••••••••••••" required>
+          </div>
+
+          <button type="submit">ACCES ÎN PANOU ➔</button>
+        </form>
+
+        <div class="footer-note">
+          © 2026 Eternis Systems. Toate drepturile rezervate.
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

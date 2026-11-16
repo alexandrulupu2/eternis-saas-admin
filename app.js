@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const AdminController = require("./src/controllers/AdminController");
 const UserController = require("./src/controllers/UserController");
+const AuthController = require("./src/controllers/AuthController");
 
 const app = express();
 const PORT = 3000;
@@ -9,13 +10,18 @@ const PORT = 3000;
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// Folder public pentru imagini si resurse statice
+app.use(express.static(path.join(__dirname, "public")));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Ruta principala duce la Panoul Preotului
-app.get("/", (req, res) => res.redirect("/parohie"));
+// Rute Autentificare
+app.get("/", (req, res) => res.redirect("/login"));
+app.get("/login", AuthController.renderLogin);
+app.post("/login", AuthController.handleLogin);
 
-// Rute Utilizator / Preot (SaaS User View & API)
+// Interfata Preot / Parohie
 app.get("/parohie", UserController.dashboard);
 app.post("/api/user/generate-ai", UserController.generateAiContent);
 
