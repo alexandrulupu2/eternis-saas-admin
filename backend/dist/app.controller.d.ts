@@ -38,7 +38,31 @@ export declare class AppController {
         parola_hash: string;
         rol_utilizator: string;
         credite_disponibile: number;
+        id_abonament?: number;
     }): Promise<{
+        id_utilizator: number;
+        id_client: number | null;
+        email_utilizator: string;
+        parola_hash: string;
+        rol_utilizator: string;
+        id_abonament: number;
+        credite_disponibile: number;
+        data_creare: Date;
+    }>;
+    updateUser(id: string, body: {
+        email_utilizator?: string;
+        parola_hash?: string;
+        rol_utilizator?: string;
+        credite_disponibile?: number;
+        id_abonament?: number;
+    }): Promise<{
+        abonamente: {
+            id_abonament: number;
+            nume_plan: string;
+            credite_lunare: number;
+            pret_simulat: import("@prisma/client/runtime/library").Decimal;
+        };
+    } & {
         id_utilizator: number;
         id_client: number | null;
         email_utilizator: string;
@@ -70,6 +94,52 @@ export declare class AppController {
         credite_disponibile: number;
         data_creare: Date;
     }>;
+    getPlans(): Promise<{
+        id_abonament: number;
+        nume_plan: string;
+        credite_lunare: number;
+        pret_simulat: import("@prisma/client/runtime/library").Decimal;
+    }[]>;
+    updatePlan(id: string, body: {
+        nume_plan?: string;
+        pret_simulat?: number;
+        credite_lunare?: number;
+    }): Promise<{
+        id_abonament: number;
+        nume_plan: string;
+        credite_lunare: number;
+        pret_simulat: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    getAdminConversii(): Promise<({
+        utilizatori: {
+            email_utilizator: string;
+        };
+    } & {
+        id_utilizator: number;
+        id_conversie: number;
+        id_decedat: number | null;
+        tip_conversie: string;
+        prompt_input: string;
+        rezultat_output: string;
+        credite_consumate: number;
+        data_conversie: Date;
+    })[]>;
+    getAdminTranzactii(): Promise<({
+        abonamente: {
+            nume_plan: string;
+        };
+        utilizatori: {
+            email_utilizator: string;
+        };
+    } & {
+        id_utilizator: number;
+        id_abonament: number;
+        id_tranzactie: number;
+        suma_simulata: import("@prisma/client/runtime/library").Decimal;
+        credite_adaugate: number;
+        status_tranzactie: string;
+        data_tranzactie: Date;
+    })[]>;
     getUserDashboard(id: string): Promise<({
         abonamente: {
             id_abonament: number;
@@ -87,12 +157,6 @@ export declare class AppController {
         credite_disponibile: number;
         data_creare: Date;
     }) | null>;
-    getPlans(): Promise<{
-        id_abonament: number;
-        nume_plan: string;
-        credite_lunare: number;
-        pret_simulat: import("@prisma/client/runtime/library").Decimal;
-    }[]>;
     upgradeUser(body: {
         userId: number;
         id_abonament?: number;
@@ -132,14 +196,4 @@ export declare class AppController {
         crediteRamase: number;
         message?: undefined;
     }>;
-    getAdminConversii(): Promise<{
-        id_utilizator: number;
-        tip_conversie: string;
-        prompt_input: string;
-        rezultat_output: string;
-        credite_consumate: number;
-        data_conversie: Date;
-        id_conversie: number;
-        id_decedat: number | null;
-    }[]>;
 }

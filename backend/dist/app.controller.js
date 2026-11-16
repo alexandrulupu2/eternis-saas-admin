@@ -55,8 +55,26 @@ let AppController = class AppController {
                 parola_hash: body.parola_hash,
                 rol_utilizator: body.rol_utilizator || 'USER',
                 credite_disponibile: Number(body.credite_disponibile) || 15,
-                id_abonament: defaultPlan ? defaultPlan.id_abonament : 1,
+                id_abonament: body.id_abonament ? Number(body.id_abonament) : defaultPlan ? defaultPlan.id_abonament : 1,
             },
+        });
+    }
+    async updateUser(id, body) {
+        const dataToUpdate = {};
+        if (body.email_utilizator)
+            dataToUpdate.email_utilizator = body.email_utilizator;
+        if (body.parola_hash && body.parola_hash.trim() !== '')
+            dataToUpdate.parola_hash = body.parola_hash;
+        if (body.rol_utilizator)
+            dataToUpdate.rol_utilizator = body.rol_utilizator;
+        if (body.credite_disponibile !== undefined)
+            dataToUpdate.credite_disponibile = Number(body.credite_disponibile);
+        if (body.id_abonament !== undefined)
+            dataToUpdate.id_abonament = Number(body.id_abonament);
+        return await this.prisma.utilizatori.update({
+            where: { id_utilizator: Number(id) },
+            data: dataToUpdate,
+            include: { abonamente: true },
         });
     }
     async addCredits(id, body) {
@@ -67,8 +85,54 @@ let AppController = class AppController {
         });
     }
     async deleteUser(id) {
+        const userId = Number(id);
+        await this.prisma.conversii_ai.deleteMany({ where: { id_utilizator: userId } });
+        await this.prisma.tranzactii_simulate.deleteMany({ where: { id_utilizator: userId } });
         return await this.prisma.utilizatori.delete({
-            where: { id_utilizator: Number(id) },
+            where: { id_utilizator: userId },
+        });
+    }
+    async getPlans() {
+        return await this.prisma.abonamente.findMany({
+            orderBy: { id_abonament: 'asc' },
+        });
+    }
+    async updatePlan(id, body) {
+        const dataToUpdate = {};
+        if (body.nume_plan !== undefined)
+            dataToUpdate.nume_plan = body.nume_plan;
+        if (body.pret_simulat !== undefined)
+            dataToUpdate.pret_simulat = Number(body.pret_simulat);
+        if (body.credite_lunare !== undefined)
+            dataToUpdate.credite_lunare = Number(body.credite_lunare);
+        return await this.prisma.abonamente.update({
+            where: { id_abonament: Number(id) },
+            data: dataToUpdate,
+        });
+    }
+    async getAdminConversii() {
+        return await this.prisma.conversii_ai.findMany({
+            include: {
+                utilizatori: {
+                    select: { email_utilizator: true },
+                },
+            },
+            orderBy: { id_conversie: 'desc' },
+            take: 50,
+        });
+    }
+    async getAdminTranzactii() {
+        return await this.prisma.tranzactii_simulate.findMany({
+            include: {
+                utilizatori: {
+                    select: { email_utilizator: true },
+                },
+                abonamente: {
+                    select: { nume_plan: true },
+                },
+            },
+            orderBy: { id_tranzactie: 'desc' },
+            take: 50,
         });
     }
     async getUserDashboard(id) {
@@ -77,22 +141,35 @@ let AppController = class AppController {
             include: { abonamente: true },
         });
     }
-    async getPlans() {
-        return await this.prisma.abonamente.findMany({
-            orderBy: { id_abonament: 'asc' },
-        });
-    }
     async upgradeUser(body) {
+        const userId = Number(body.userId);
+        const crediteExtra = Number(body.crediteExtra) || 0;
         const dataToUpdate = {
-            credite_disponibile: { increment: Number(body.crediteExtra) || 0 },
+            credite_disponibile: { increment: crediteExtra },
         };
+        let planPret = 0;
         if (body.id_abonament) {
             dataToUpdate.id_abonament = Number(body.id_abonament);
+            const plan = await this.prisma.abonamente.findUnique({
+                where: { id_abonament: Number(body.id_abonament) },
+            });
+            if (plan && plan.pret_simulat) {
+                planPret = Number(plan.pret_simulat);
+            }
         }
         const updated = await this.prisma.utilizatori.update({
-            where: { id_utilizator: Number(body.userId) },
+            where: { id_utilizator: userId },
             data: dataToUpdate,
             include: { abonamente: true },
+        });
+        await this.prisma.tranzactii_simulate.create({
+            data: {
+                id_utilizator: userId,
+                id_abonament: body.id_abonament ? Number(body.id_abonament) : updated.id_abonament,
+                suma_simulata: planPret > 0 ? planPret : 25,
+                credite_adaugate: crediteExtra,
+                status_tranzactie: 'FINALIZATA',
+            },
         });
         return {
             success: true,
@@ -132,12 +209,6 @@ let AppController = class AppController {
             crediteRamase: updated.credite_disponibile,
         };
     }
-    async getAdminConversii() {
-        return await this.prisma.conversii_ai.findMany({
-            orderBy: { id_conversie: 'desc' },
-            take: 20,
-        });
-    }
 };
 exports.AppController = AppController;
 __decorate([
@@ -161,6 +232,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "createUser", null);
 __decorate([
+    (0, common_1.Put)('admin/users/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "updateUser", null);
+__decorate([
     (0, common_1.Post)('admin/users/:id/credits'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -176,18 +255,38 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "deleteUser", null);
 __decorate([
+    (0, common_1.Get)('plans'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getPlans", null);
+__decorate([
+    (0, common_1.Put)('admin/plans/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "updatePlan", null);
+__decorate([
+    (0, common_1.Get)('admin/conversii'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getAdminConversii", null);
+__decorate([
+    (0, common_1.Get)('admin/tranzactii'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getAdminTranzactii", null);
+__decorate([
     (0, common_1.Get)('user/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getUserDashboard", null);
-__decorate([
-    (0, common_1.Get)('plans'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], AppController.prototype, "getPlans", null);
 __decorate([
     (0, common_1.Post)('user/upgrade'),
     __param(0, (0, common_1.Body)()),
@@ -202,12 +301,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "generateAi", null);
-__decorate([
-    (0, common_1.Get)('admin/conversii'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], AppController.prototype, "getAdminConversii", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)('api'),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Delete } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 
 @Controller('api')
@@ -32,6 +32,7 @@ export class AppController {
     };
   }
 
+  // ==================== ADMIN: UTILIZATORI ====================
   @Get('admin/users')
   async getUsers() {
     return await this.prisma.utilizatori.findMany({
@@ -41,7 +42,16 @@ export class AppController {
   }
 
   @Post('admin/users')
-  async createUser(@Body() body: { email_utilizator: string; parola_hash: string; rol_utilizator: string; credite_disponibile: number }) {
+  async createUser(
+    @Body()
+    body: {
+      email_utilizator: string;
+      parola_hash: string;
+      rol_utilizator: string;
+      credite_disponibile: number;
+      id_abonament?: number;
+    },
+  ) {
     const defaultPlan = await this.prisma.abonamente.findFirst();
     return await this.prisma.utilizatori.create({
       data: {
@@ -49,8 +59,34 @@ export class AppController {
         parola_hash: body.parola_hash,
         rol_utilizator: body.rol_utilizator || 'USER',
         credite_disponibile: Number(body.credite_disponibile) || 15,
-        id_abonament: defaultPlan ? defaultPlan.id_abonament : 1,
+        id_abonament: body.id_abonament ? Number(body.id_abonament) : defaultPlan ? defaultPlan.id_abonament : 1,
       },
+    });
+  }
+
+  @Put('admin/users/:id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      email_utilizator?: string;
+      parola_hash?: string;
+      rol_utilizator?: string;
+      credite_disponibile?: number;
+      id_abonament?: number;
+    },
+  ) {
+    const dataToUpdate: any = {};
+    if (body.email_utilizator) dataToUpdate.email_utilizator = body.email_utilizator;
+    if (body.parola_hash && body.parola_hash.trim() !== '') dataToUpdate.parola_hash = body.parola_hash;
+    if (body.rol_utilizator) dataToUpdate.rol_utilizator = body.rol_utilizator;
+    if (body.credite_disponibile !== undefined) dataToUpdate.credite_disponibile = Number(body.credite_disponibile);
+    if (body.id_abonament !== undefined) dataToUpdate.id_abonament = Number(body.id_abonament);
+
+    return await this.prisma.utilizatori.update({
+      where: { id_utilizator: Number(id) },
+      data: dataToUpdate,
+      include: { abonamente: true },
     });
   }
 
@@ -65,11 +101,69 @@ export class AppController {
 
   @Delete('admin/users/:id')
   async deleteUser(@Param('id') id: string) {
+    const userId = Number(id);
+    await this.prisma.conversii_ai.deleteMany({ where: { id_utilizator: userId } });
+    await this.prisma.tranzactii_simulate.deleteMany({ where: { id_utilizator: userId } });
     return await this.prisma.utilizatori.delete({
-      where: { id_utilizator: Number(id) },
+      where: { id_utilizator: userId },
     });
   }
 
+  // ==================== ADMIN: PLANURI ABONAMENT ====================
+  @Get('plans')
+  async getPlans() {
+    return await this.prisma.abonamente.findMany({
+      orderBy: { id_abonament: 'asc' },
+    });
+  }
+
+  @Put('admin/plans/:id')
+  async updatePlan(
+    @Param('id') id: string,
+    @Body() body: { nume_plan?: string; pret_simulat?: number; credite_lunare?: number },
+  ) {
+    const dataToUpdate: any = {};
+    if (body.nume_plan !== undefined) dataToUpdate.nume_plan = body.nume_plan;
+    if (body.pret_simulat !== undefined) dataToUpdate.pret_simulat = Number(body.pret_simulat);
+    if (body.credite_lunare !== undefined) dataToUpdate.credite_lunare = Number(body.credite_lunare);
+
+    return await this.prisma.abonamente.update({
+      where: { id_abonament: Number(id) },
+      data: dataToUpdate,
+    });
+  }
+
+  // ==================== ADMIN: ISTORIC AI & TRANZACTII ====================
+  @Get('admin/conversii')
+  async getAdminConversii() {
+    return await this.prisma.conversii_ai.findMany({
+      include: {
+        utilizatori: {
+          select: { email_utilizator: true },
+        },
+      },
+      orderBy: { id_conversie: 'desc' },
+      take: 50,
+    });
+  }
+
+  @Get('admin/tranzactii')
+  async getAdminTranzactii() {
+    return await this.prisma.tranzactii_simulate.findMany({
+      include: {
+        utilizatori: {
+          select: { email_utilizator: true },
+        },
+        abonamente: {
+          select: { nume_plan: true },
+        },
+      },
+      orderBy: { id_tranzactie: 'desc' },
+      take: 50,
+    });
+  }
+
+  // ==================== USER DASHBOARD & AI ====================
   @Get('user/:id')
   async getUserDashboard(@Param('id') id: string) {
     return await this.prisma.utilizatori.findUnique({
@@ -78,27 +172,39 @@ export class AppController {
     });
   }
 
-  @Get('plans')
-  async getPlans() {
-    return await this.prisma.abonamente.findMany({
-      orderBy: { id_abonament: 'asc' },
-    });
-  }
-
   @Post('user/upgrade')
   async upgradeUser(@Body() body: { userId: number; id_abonament?: number; crediteExtra: number }) {
+    const userId = Number(body.userId);
+    const crediteExtra = Number(body.crediteExtra) || 0;
     const dataToUpdate: any = {
-      credite_disponibile: { increment: Number(body.crediteExtra) || 0 },
+      credite_disponibile: { increment: crediteExtra },
     };
 
+    let planPret = 0;
     if (body.id_abonament) {
       dataToUpdate.id_abonament = Number(body.id_abonament);
+      const plan = await this.prisma.abonamente.findUnique({
+        where: { id_abonament: Number(body.id_abonament) },
+      });
+      if (plan && plan.pret_simulat) {
+        planPret = Number(plan.pret_simulat);
+      }
     }
 
     const updated = await this.prisma.utilizatori.update({
-      where: { id_utilizator: Number(body.userId) },
+      where: { id_utilizator: userId },
       data: dataToUpdate,
       include: { abonamente: true },
+    });
+
+    await this.prisma.tranzactii_simulate.create({
+      data: {
+        id_utilizator: userId,
+        id_abonament: body.id_abonament ? Number(body.id_abonament) : updated.id_abonament,
+        suma_simulata: planPret > 0 ? planPret : 25,
+        credite_adaugate: crediteExtra,
+        status_tranzactie: 'FINALIZATA',
+      },
     });
 
     return {
@@ -131,7 +237,6 @@ export class AppController {
 
     const generatedText = texte[body.tip_text] || texte.predica;
 
-    // Salvăm automat în baza de date PostgreSQL (tabelul conversii_ai)
     await this.prisma.conversii_ai.create({
       data: {
         id_utilizator: userId,
@@ -147,13 +252,5 @@ export class AppController {
       text: generatedText,
       crediteRamase: updated.credite_disponibile,
     };
-  }
-
-  @Get('admin/conversii')
-  async getAdminConversii() {
-    return await this.prisma.conversii_ai.findMany({
-      orderBy: { id_conversie: 'desc' },
-      take: 20,
-    });
   }
 }

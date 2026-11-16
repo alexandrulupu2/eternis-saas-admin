@@ -91,19 +91,13 @@ function CreditsContent() {
           </p>
         </div>
 
-        {/* GRID CARDURI MARI SI INALTE */}
+        {/* GRID CARDURI SINCRONIZATE CU BAZA DE DATE */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {plans.map((plan, idx) => {
             const isCurrent = user.id_abonament === plan.id_abonament;
-            const bonusCredits = idx === 0 ? 15 : idx === 1 ? 50 : 150;
-            const displayPrice =
-              plan.pret_lunar && Number(plan.pret_lunar) > 0
-                ? `${plan.pret_lunar} RON`
-                : idx === 0
-                ? "0 RON"
-                : idx === 1
-                ? "49 RON"
-                : "99 RON";
+            const bonusCredits = Number(plan.credite_lunare) || (idx === 0 ? 15 : idx === 1 ? 50 : 150);
+            const numericPrice = plan.pret_simulat !== undefined && plan.pret_simulat !== null ? Number(plan.pret_simulat) : 0;
+            const displayPrice = `${numericPrice} RON`;
 
             const description =
               idx === 0
