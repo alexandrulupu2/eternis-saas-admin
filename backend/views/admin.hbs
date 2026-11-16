@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eternis — Panou Administrare (MVC)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex bg-[#09090b] text-slate-50 font-sans">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-[#121215] border-r border-[#d4af37] p-7 flex flex-col">
+    <div class="text-2xl font-black text-[#d4af37] tracking-widest mb-10 font-serif">
+      ✝ ETERNIS ADMIN
+    </div>
+    <nav class="space-y-3 flex-1">
+      <div class="bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-extrabold px-4 py-3 rounded-lg">
+        👥 Parohii Înrolate (MVC)
+      </div>
+      <button
+        type="button"
+        onclick="document.getElementById('enrollModal').classList.remove('hidden')"
+        class="w-full text-left text-zinc-400 hover:text-white px-4 py-3 rounded-lg font-semibold cursor-pointer"
+      >
+        ➕ Înrolare Preot
+      </button>
+    </nav>
+    <a href="http://localhost:3000" class="text-red-500 font-bold px-4 py-3 hover:underline">
+      🚪 Deconectare
+    </a>
+  </aside>
+
+  <!-- CONTINUT PRINCIPAL -->
+  <main class="flex-1 p-10 overflow-y-auto">
+    <div class="flex justify-between items-center border-b-2 border-[#d4af37] pb-5 mb-8">
+      <div>
+        <h1 class="text-3xl font-serif font-bold text-white">Panou de Administrare (Arhitectură MVC)</h1>
+        <p class="text-zinc-400 text-sm mt-1">Server-Side Rendering în NestJS (Controller + Prisma Model + Handlebars View)</p>
+      </div>
+      <button
+        type="button"
+        onclick="document.getElementById('enrollModal').classList.remove('hidden')"
+        class="bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-black px-5 py-3 rounded-lg uppercase text-sm cursor-pointer"
+      >
+        + Înrolează Parohie / Preot
+      </button>
+    </div>
+
+    <!-- CARDURI STATISTICI -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-9">
+      <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
+        <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Conturi Înregistrate</h4>
+        <div class="text-3xl font-serif font-black text-[#fef08a]">{{totalUsers}}</div>
+      </div>
+      <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
+        <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Familii Înregistrate</h4>
+        <div class="text-3xl font-serif font-black text-[#fef08a]">3</div>
+      </div>
+      <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
+        <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Programări Active</h4>
+        <div class="text-3xl font-serif font-black text-[#fef08a]">1</div>
+      </div>
+      <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
+        <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Cimitire Înrolate</h4>
+        <div class="text-3xl font-serif font-black text-[#fef08a]">1</div>
+      </div>
+    </div>
+
+    <!-- TABEL CONTURI -->
+    <h2 class="text-xl font-serif text-white mb-4">Conturi de Preoți / Parohii Înrolate</h2>
+    <div class="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-[#1c1917] text-[#d4af37] text-xs uppercase">
+            <th class="p-4">ID</th>
+            <th class="p-4">Email (Login Preot)</th>
+            <th class="p-4">Rol</th>
+            <th class="p-4">Plan Abonament</th>
+            <th class="p-4">Credite AI</th>
+            <th class="p-4">Acțiuni</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each users}}
+          <tr class="border-t border-zinc-800 hover:bg-[#d4af37]/5">
+            <td class="p-4">#{{this.id_utilizator}}</td>
+            <td class="p-4 font-bold">{{this.email_utilizator}}</td>
+            <td class="p-4">
+              <span class="bg-[#d4af37]/15 text-[#fef08a] border border-[#d4af37] px-2.5 py-1 rounded text-xs font-bold">
+                {{this.rol_utilizator}}
+              </span>
+            </td>
+            <td class="p-4">{{this.planName}}</td>
+            <td class="p-4 text-[#d4af37] font-extrabold">{{this.credite_disponibile}} credite</td>
+            <td class="p-4 flex gap-3 items-center">
+              <button
+                type="button"
+                onclick="openCreditModal('{{this.id_utilizator}}', '{{this.email_utilizator}}', '{{this.credite_disponibile}}')"
+                class="bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37] px-3 py-1.5 rounded text-xs font-bold hover:bg-[#d4af37] hover:text-black transition cursor-pointer"
+              >
+                Adaugă credite suplimentare
+              </button>
+              <form action="/admin/users/{{this.id_utilizator}}/delete" method="POST" onsubmit="return confirm('Sigur dorești ștergerea contului?');">
+                <button type="submit" class="text-red-500 text-xs font-bold hover:underline cursor-pointer">
+                  Șterge
+                </button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- MODAL INROLARE PAROHIE / PREOT (FORMULAR POST MVC) -->
+  <div id="enrollModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <form action="/admin/users/create" method="POST" class="bg-[#121215] border-2 border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-4 shadow-2xl">
+      <h3 class="text-xl font-serif font-bold text-[#fef08a]">Înrolare Parohie / Preot Nou</h3>
+      <div>
+        <label class="block text-sm mb-1 text-zinc-300 font-semibold">Email Preot:</label>
+        <input type="email" name="email_utilizator" required class="w-full p-3 rounded-lg bg-[#09090b] border border-zinc-700 text-white" placeholder="parohia@biserica.ro" />
+      </div>
+      <div>
+        <label class="block text-sm mb-1 text-zinc-300 font-semibold">Parolă Acces Preot:</label>
+        <input type="text" name="parola_hash" required class="w-full p-3 rounded-lg bg-[#09090b] border border-zinc-700 text-white" placeholder="Introduceți parola" />
+      </div>
+      <div>
+        <label class="block text-sm mb-1 text-zinc-300 font-semibold">Credite AI inițiale:</label>
+        <input type="number" name="credite_disponibile" value="15" min="1" required class="w-full p-3 rounded-lg bg-[#09090b] border border-zinc-700 text-white" />
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-black py-3 rounded-lg uppercase text-sm cursor-pointer">
+          Salvează
+        </button>
+        <button type="button" onclick="document.getElementById('enrollModal').classList.add('hidden')" class="flex-1 bg-zinc-800 text-white font-semibold py-3 rounded-lg text-sm cursor-pointer">
+          Anulează
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL ADAUGARE CREDITE SUPLIMENTARE (FORMULAR POST MVC) -->
+  <div id="creditModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <form id="creditForm" method="POST" class="bg-[#121215] border-2 border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-5 shadow-2xl">
+      <div>
+        <h3 class="text-xl font-serif font-bold text-[#fef08a]">Adaugă Credite Suplimentare</h3>
+        <p class="text-zinc-400 text-sm mt-1">Cont: <strong id="modalUserEmail" class="text-white"></strong></p>
+        <p class="text-zinc-400 text-xs mt-0.5">Sold curent: <span id="modalUserCredits" class="text-[#d4af37] font-bold"></span></p>
+      </div>
+      <div>
+        <label class="block text-sm mb-2 text-zinc-200 font-semibold">Câte credite AI dorești să adaugi?</label>
+        <input type="number" name="amount" value="20" min="1" max="10000" required class="w-full p-3.5 rounded-lg bg-[#09090b] border border-[#d4af37] text-white text-lg font-bold" />
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-black py-3 rounded-lg uppercase text-sm cursor-pointer">
+          ✨ Adaugă Creditele
+        </button>
+        <button type="button" onclick="document.getElementById('creditModal').classList.add('hidden')" class="flex-1 bg-zinc-800 text-white font-semibold py-3 rounded-lg text-sm cursor-pointer">
+          Anulează
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function openCreditModal(id, email, credits) {
+      document.getElementById('creditForm').action = '/admin/users/' + id + '/credits';
+      document.getElementById('modalUserEmail').innerText = email;
+      document.getElementById('modalUserCredits').innerText = credits + ' credite AI';
+      document.getElementById('creditModal').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
