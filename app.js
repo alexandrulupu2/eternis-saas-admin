@@ -10,19 +10,18 @@ const PORT = 3000;
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Folder public pentru imagini si resurse statice
 app.use(express.static(path.join(__dirname, "public")));
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Rute Autentificare
+// Autentificare
 app.get("/", (req, res) => res.redirect("/login"));
 app.get("/login", AuthController.renderLogin);
 app.post("/login", AuthController.handleLogin);
 
-// Interfata Preot / Parohie
-app.get("/parohie", UserController.dashboard);
+// Interfata User (inclusiv redirect de pe vechea ruta /parohie)
+app.get("/user", UserController.dashboard);
+app.get("/parohie", (req, res) => res.redirect(`/user?userId=${req.query.userId || 2}`));
 app.post("/api/user/generate-ai", UserController.generateAiContent);
 
 // Rute Admin MVC
