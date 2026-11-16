@@ -6,6 +6,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [newCredits, setNewCredits] = useState(15);
 
   const [creditModalUser, setCreditModalUser] = useState<any>(null);
@@ -49,12 +50,14 @@ export default function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email_utilizator: newEmail,
-        parola_hash: "parola123",
+        parola_hash: newPassword,
         rol_utilizator: "USER",
         credite_disponibile: newCredits,
       }),
     });
     setNewEmail("");
+    setNewPassword("");
+    setNewCredits(15);
     setShowModal(false);
     loadUsers();
   };
@@ -162,36 +165,49 @@ export default function AdminDashboard() {
           </table>
         </div>
 
+        {/* MODAL INROLARE PAROHIE / PREOT CU PAROLA */}
         {showModal && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <form onSubmit={handleCreateUser} className="bg-[#121215] border border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-4 shadow-2xl">
+            <form onSubmit={handleCreateUser} className="bg-[#121215] border-2 border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-4 shadow-[0_10px_40px_rgba(212,175,55,0.25)]">
               <h3 className="text-xl font-serif font-bold text-[#fef08a]">Înrolare Parohie / Preot Nou</h3>
               <div>
-                <label className="block text-sm mb-1 text-zinc-300">Email Preot:</label>
+                <label className="block text-sm mb-1 text-zinc-300 font-semibold">Email Preot:</label>
                 <input
                   type="email"
                   required
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  className="w-full p-3 rounded bg-[#09090b] border border-zinc-700 text-white focus:outline-none focus:border-[#d4af37]"
+                  className="w-full p-3 rounded-lg bg-[#09090b] border border-zinc-700 text-white focus:outline-none focus:border-[#d4af37]"
                   placeholder="parohia@biserica.ro"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1 text-zinc-300">Credite AI inițiale:</label>
+                <label className="block text-sm mb-1 text-zinc-300 font-semibold">Parolă Acces Preot:</label>
+                <input
+                  type="text"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full p-3 rounded-lg bg-[#09090b] border border-zinc-700 text-white focus:outline-none focus:border-[#d4af37]"
+                  placeholder="Introduceți parola pentru acest cont"
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1 text-zinc-300 font-semibold">Credite AI inițiale:</label>
                 <input
                   type="number"
                   min="1"
+                  required
                   value={newCredits}
                   onChange={(e) => setNewCredits(Number(e.target.value))}
-                  className="w-full p-3 rounded bg-[#09090b] border border-zinc-700 text-white focus:outline-none focus:border-[#d4af37]"
+                  className="w-full p-3 rounded-lg bg-[#09090b] border border-zinc-700 text-white focus:outline-none focus:border-[#d4af37]"
                 />
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="submit" className="flex-1 bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-black py-2.5 rounded-lg cursor-pointer">
+                <button type="submit" className="flex-1 bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-black py-3 rounded-lg uppercase text-sm cursor-pointer">
                   Salvează
                 </button>
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-zinc-800 text-white py-2.5 rounded-lg cursor-pointer">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-3 rounded-lg text-sm cursor-pointer">
                   Anulează
                 </button>
               </div>
@@ -199,6 +215,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* MODAL ADAUGARE CREDITE SUPLIMENTARE */}
         {creditModalUser && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
             <form onSubmit={handleConfirmAddCredits} className="bg-[#121215] border-2 border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-5 shadow-[0_10px_40px_rgba(212,175,55,0.3)]">

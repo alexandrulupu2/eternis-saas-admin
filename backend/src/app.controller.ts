@@ -12,27 +12,17 @@ export class AppController {
       return { success: false, message: 'Vă rugăm să completați toate câmpurile!' };
     }
 
-    let user = await this.prisma.utilizatori.findFirst({
+    const user = await this.prisma.utilizatori.findFirst({
       where: { email_utilizator: email },
       include: { abonamente: true },
     });
 
     if (!user) {
-      if (email.toLowerCase().includes('admin')) {
-        user = await this.prisma.utilizatori.findFirst({
-          where: { rol_utilizator: 'ADMIN' },
-          include: { abonamente: true },
-        });
-      } else {
-        user = await this.prisma.utilizatori.findFirst({
-          where: { NOT: { rol_utilizator: 'ADMIN' } },
-          include: { abonamente: true },
-        });
-      }
+      return { success: false, message: 'Nu există niciun cont cu acest email!' };
     }
 
-    if (!user) {
-      return { success: false, message: 'Nu a fost găsit niciun cont în baza de date!' };
+    if (user.parola_hash !== parola) {
+      return { success: false, message: 'Parola introdusă este incorectă!' };
     }
 
     return {
@@ -56,7 +46,7 @@ export class AppController {
     return await this.prisma.utilizatori.create({
       data: {
         email_utilizator: body.email_utilizator,
-        parola_hash: body.parola_hash || 'parola123',
+        parola_hash: body.parola_hash,
         rol_utilizator: body.rol_utilizator || 'USER',
         credite_disponibile: Number(body.credite_disponibile) || 15,
         id_abonament: defaultPlan ? defaultPlan.id_abonament : 1,
@@ -88,16 +78,13 @@ export class AppController {
     });
   }
 
-  // Endpoint nou: Lista abonamente disponibile din baza de date
   @Get('plans')
   async getPlans() {
-    const plans = await this.prisma.abonamente.findMany({
+    return await this.prisma.abonamente.findMany({
       orderBy: { id_abonament: 'asc' },
     });
-    return plans;
   }
 
-  // Endpoint nou: Upgrade abonament sau adaugare pachet credite AI
   @Post('user/upgrade')
   async upgradeUser(@Body() body: { userId: number; id_abonament?: number; crediteExtra: number }) {
     const dataToUpdate: any = {
