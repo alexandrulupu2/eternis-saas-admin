@@ -65,10 +65,11 @@ export class AppController {
   }
 
   @Post('admin/users/:id/credits')
-  async addCredits(@Param('id') id: string) {
+  async addCredits(@Param('id') id: string, @Body() body: { amount?: number }) {
+    const amountToAdd = Number(body?.amount) > 0 ? Number(body.amount) : 10;
     return await this.prisma.utilizatori.update({
       where: { id_utilizator: Number(id) },
-      data: { credite_disponibile: { increment: 10 } },
+      data: { credite_disponibile: { increment: amountToAdd } },
     });
   }
 
@@ -85,6 +86,38 @@ export class AppController {
       where: { id_utilizator: Number(id) || 2 },
       include: { abonamente: true },
     });
+  }
+
+  // Endpoint nou: Lista abonamente disponibile din baza de date
+  @Get('plans')
+  async getPlans() {
+    const plans = await this.prisma.abonamente.findMany({
+      orderBy: { id_abonament: 'asc' },
+    });
+    return plans;
+  }
+
+  // Endpoint nou: Upgrade abonament sau adaugare pachet credite AI
+  @Post('user/upgrade')
+  async upgradeUser(@Body() body: { userId: number; id_abonament?: number; crediteExtra: number }) {
+    const dataToUpdate: any = {
+      credite_disponibile: { increment: Number(body.crediteExtra) || 0 },
+    };
+
+    if (body.id_abonament) {
+      dataToUpdate.id_abonament = Number(body.id_abonament);
+    }
+
+    const updated = await this.prisma.utilizatori.update({
+      where: { id_utilizator: Number(body.userId) },
+      data: dataToUpdate,
+      include: { abonamente: true },
+    });
+
+    return {
+      success: true,
+      user: updated,
+    };
   }
 
   @Post('user/generate-ai')

@@ -59,7 +59,8 @@ function UserContent() {
           </Link>
         </div>
 
-        <div className="bg-[#121215] border border-[#d4af37] p-7 rounded-2xl mb-9 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-[0_10px_30px_rgba(212,175,55,0.15)]">
+        {/* CARD PLAN SAAS CU BUTON UPGRADE ABONAMENT */}
+        <div className="bg-[#121215] border border-[#d4af37] p-7 rounded-2xl mb-9 flex flex-col md:flex-row justify-between items-center gap-6 shadow-[0_10px_30px_rgba(212,175,55,0.15)]">
           <div>
             <p className="text-[#d4af37] text-xs font-bold uppercase tracking-widest">Abonament SaaS Activ</p>
             <h3 className="text-2xl font-serif font-bold text-[#fef08a] mt-1">
@@ -67,11 +68,22 @@ function UserContent() {
             </h3>
             <p className="text-zinc-400 text-sm mt-1">Generări asistate de AI pentru predici și anunțuri parohiale.</p>
           </div>
-          <div className="bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black px-6 py-3.5 rounded-xl font-black text-xl">
-            {user.credite_disponibile} credite AI
+
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="bg-[#09090b] border border-[#d4af37]/60 text-[#fef08a] px-5 py-3 rounded-xl font-black text-lg text-center">
+              {user.credite_disponibile} credite AI
+            </div>
+
+            <Link
+              href={`/credits?userId=${user.id_utilizator}`}
+              className="bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black px-5 py-3.5 rounded-xl font-black text-sm uppercase tracking-wider shadow-[0_4px_20px_rgba(212,175,55,0.35)] hover:opacity-95 transition text-center"
+            >
+              ⭐ Upgrade Abonament
+            </Link>
           </div>
         </div>
 
+        {/* GENERATOR AI */}
         <div className="bg-[#121215] border border-zinc-800 p-8 rounded-2xl shadow-2xl">
           <h2 className="text-2xl font-serif font-bold text-white">🤖 Asistent AI Parohial (Generare Automată)</h2>
           <p className="text-zinc-400 text-sm mt-1 mb-6">Fiecare generare consumă 1 credit din planul tău SaaS.</p>

@@ -70,10 +70,11 @@ let AppController = class AppController {
             },
         });
     }
-    async addCredits(id) {
+    async addCredits(id, body) {
+        const amountToAdd = Number(body?.amount) > 0 ? Number(body.amount) : 10;
         return await this.prisma.utilizatori.update({
             where: { id_utilizator: Number(id) },
-            data: { credite_disponibile: { increment: 10 } },
+            data: { credite_disponibile: { increment: amountToAdd } },
         });
     }
     async deleteUser(id) {
@@ -86,6 +87,29 @@ let AppController = class AppController {
             where: { id_utilizator: Number(id) || 2 },
             include: { abonamente: true },
         });
+    }
+    async getPlans() {
+        const plans = await this.prisma.abonamente.findMany({
+            orderBy: { id_abonament: 'asc' },
+        });
+        return plans;
+    }
+    async upgradeUser(body) {
+        const dataToUpdate = {
+            credite_disponibile: { increment: Number(body.crediteExtra) || 0 },
+        };
+        if (body.id_abonament) {
+            dataToUpdate.id_abonament = Number(body.id_abonament);
+        }
+        const updated = await this.prisma.utilizatori.update({
+            where: { id_utilizator: Number(body.userId) },
+            data: dataToUpdate,
+            include: { abonamente: true },
+        });
+        return {
+            success: true,
+            user: updated,
+        };
     }
     async generateAi(body) {
         const user = await this.prisma.utilizatori.findUnique({
@@ -134,8 +158,9 @@ __decorate([
 __decorate([
     (0, common_1.Post)('admin/users/:id/credits'),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "addCredits", null);
 __decorate([
@@ -152,6 +177,19 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getUserDashboard", null);
+__decorate([
+    (0, common_1.Get)('plans'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getPlans", null);
+__decorate([
+    (0, common_1.Post)('user/upgrade'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "upgradeUser", null);
 __decorate([
     (0, common_1.Post)('user/generate-ai'),
     __param(0, (0, common_1.Body)()),
