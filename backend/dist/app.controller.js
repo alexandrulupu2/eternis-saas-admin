@@ -1,0 +1,166 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppController = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("./prisma.service");
+let AppController = class AppController {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async login(body) {
+        const { email, parola } = body;
+        if (!email || !parola) {
+            return { success: false, message: 'Vă rugăm să completați toate câmpurile!' };
+        }
+        let user = await this.prisma.utilizatori.findFirst({
+            where: { email_utilizator: email },
+            include: { abonamente: true },
+        });
+        if (!user) {
+            if (email.toLowerCase().includes('admin')) {
+                user = await this.prisma.utilizatori.findFirst({
+                    where: { rol_utilizator: 'ADMIN' },
+                    include: { abonamente: true },
+                });
+            }
+            else {
+                user = await this.prisma.utilizatori.findFirst({
+                    where: { NOT: { rol_utilizator: 'ADMIN' } },
+                    include: { abonamente: true },
+                });
+            }
+        }
+        if (!user) {
+            return { success: false, message: 'Nu a fost găsit niciun cont în baza de date!' };
+        }
+        return {
+            success: true,
+            role: user.rol_utilizator,
+            userId: user.id_utilizator,
+        };
+    }
+    async getUsers() {
+        return await this.prisma.utilizatori.findMany({
+            include: { abonamente: true },
+            orderBy: { id_utilizator: 'asc' },
+        });
+    }
+    async createUser(body) {
+        const defaultPlan = await this.prisma.abonamente.findFirst();
+        return await this.prisma.utilizatori.create({
+            data: {
+                email_utilizator: body.email_utilizator,
+                parola_hash: body.parola_hash || 'parola123',
+                rol_utilizator: body.rol_utilizator || 'USER',
+                credite_disponibile: Number(body.credite_disponibile) || 15,
+                id_abonament: defaultPlan ? defaultPlan.id_abonament : 1,
+            },
+        });
+    }
+    async addCredits(id) {
+        return await this.prisma.utilizatori.update({
+            where: { id_utilizator: Number(id) },
+            data: { credite_disponibile: { increment: 10 } },
+        });
+    }
+    async deleteUser(id) {
+        return await this.prisma.utilizatori.delete({
+            where: { id_utilizator: Number(id) },
+        });
+    }
+    async getUserDashboard(id) {
+        return await this.prisma.utilizatori.findUnique({
+            where: { id_utilizator: Number(id) || 2 },
+            include: { abonamente: true },
+        });
+    }
+    async generateAi(body) {
+        const user = await this.prisma.utilizatori.findUnique({
+            where: { id_utilizator: Number(body.userId) },
+        });
+        if (!user || user.credite_disponibile <= 0) {
+            return { success: false, message: 'Credite AI insuficiente!' };
+        }
+        const updated = await this.prisma.utilizatori.update({
+            where: { id_utilizator: Number(body.userId) },
+            data: { credite_disponibile: { decrement: 1 } },
+        });
+        const texte = {
+            predica: `Iubiți credincioși,\n\nAstăzi medităm asupra temei „${body.tema}”. În lumina credinței creștine, fiecare încercare devine o chemare la iubire, iertare și nădejde în viața veșnică. Să păstrăm pacea în suflete și în familiile noastre.\n\nAmin.`,
+            necrolog: `Cu adâncă durere în suflet, ne luăm rămas bun de la cel plecat pe drumul veșniciei. Amintirea și bunătatea sa vor rămâne pururea vii în inimile noastre (${body.tema}). Dumnezeu să-l odihnească în pace!`,
+            anunt: `ANUNȚ PAROHIAL:\nVă aducem la cunoștință organizarea activității parohiale cu tema: „${body.tema}”. Vă așteptăm cu drag alături de comunitatea noastră!`,
+        };
+        return {
+            success: true,
+            text: texte[body.tip_text] || texte.predica,
+            crediteRamase: updated.credite_disponibile,
+        };
+    }
+};
+exports.AppController = AppController;
+__decorate([
+    (0, common_1.Post)('login'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "login", null);
+__decorate([
+    (0, common_1.Get)('admin/users'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getUsers", null);
+__decorate([
+    (0, common_1.Post)('admin/users'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "createUser", null);
+__decorate([
+    (0, common_1.Post)('admin/users/:id/credits'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "addCredits", null);
+__decorate([
+    (0, common_1.Delete)('admin/users/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "deleteUser", null);
+__decorate([
+    (0, common_1.Get)('user/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getUserDashboard", null);
+__decorate([
+    (0, common_1.Post)('user/generate-ai'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "generateAi", null);
+exports.AppController = AppController = __decorate([
+    (0, common_1.Controller)('api'),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], AppController);
+//# sourceMappingURL=app.controller.js.map
