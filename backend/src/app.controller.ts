@@ -109,8 +109,9 @@ export class AppController {
 
   @Post('user/generate-ai')
   async generateAi(@Body() body: { userId: number; tip_text: string; tema: string }) {
+    const userId = Number(body.userId);
     const user = await this.prisma.utilizatori.findUnique({
-      where: { id_utilizator: Number(body.userId) },
+      where: { id_utilizator: userId },
     });
 
     if (!user || user.credite_disponibile <= 0) {
@@ -118,7 +119,7 @@ export class AppController {
     }
 
     const updated = await this.prisma.utilizatori.update({
-      where: { id_utilizator: Number(body.userId) },
+      where: { id_utilizator: userId },
       data: { credite_disponibile: { decrement: 1 } },
     });
 
@@ -128,10 +129,31 @@ export class AppController {
       anunt: `ANUNȚ PAROHIAL:\nVă aducem la cunoștință organizarea activității parohiale cu tema: „${body.tema}”. Vă așteptăm cu drag alături de comunitatea noastră!`,
     };
 
+    const generatedText = texte[body.tip_text] || texte.predica;
+
+    // Salvăm automat în baza de date PostgreSQL (tabelul conversii_ai)
+    await this.prisma.conversii_ai.create({
+      data: {
+        id_utilizator: userId,
+        tip_conversie: (body.tip_text || 'PREDICA').toUpperCase(),
+        prompt_input: body.tema || 'Fără temă specificată',
+        rezultat_output: generatedText,
+        credite_consumate: 1,
+      },
+    });
+
     return {
       success: true,
-      text: texte[body.tip_text] || texte.predica,
+      text: generatedText,
       crediteRamase: updated.credite_disponibile,
     };
+  }
+
+  @Get('admin/conversii')
+  async getAdminConversii() {
+    return await this.prisma.conversii_ai.findMany({
+      orderBy: { id_conversie: 'desc' },
+      take: 20,
+    });
   }
 }

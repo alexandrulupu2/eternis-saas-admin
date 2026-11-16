@@ -15,7 +15,7 @@
     </div>
     <nav class="space-y-3 flex-1">
       <div class="bg-gradient-to-r from-[#d4af37] to-[#aa7c11] text-black font-extrabold px-4 py-3 rounded-lg">
-        👥 Parohii Înrolate (MVC)
+        👥 Parohii Înrolate
       </div>
       <button
         type="button"
@@ -47,14 +47,10 @@
     </div>
 
     <!-- CARDURI STATISTICI -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-9">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-9">
       <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
         <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Conturi Înregistrate</h4>
         <div class="text-3xl font-serif font-black text-[#fef08a]">{{totalUsers}}</div>
-      </div>
-      <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
-        <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Familii Înregistrate</h4>
-        <div class="text-3xl font-serif font-black text-[#fef08a]">3</div>
       </div>
       <div class="bg-[#121215] border border-[#d4af37]/40 p-5 rounded-xl">
         <h4 class="text-zinc-400 text-xs uppercase tracking-wider mb-2">Programări Active</h4>
@@ -113,7 +109,7 @@
     </div>
   </main>
 
-  <!-- MODAL INROLARE PAROHIE / PREOT (FORMULAR POST MVC) -->
+  <!-- MODAL INROLARE PAROHIE / PREOT -->
   <div id="enrollModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
     <form action="/admin/users/create" method="POST" class="bg-[#121215] border-2 border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-4 shadow-2xl">
       <h3 class="text-xl font-serif font-bold text-[#fef08a]">Înrolare Parohie / Preot Nou</h3>
@@ -140,7 +136,7 @@
     </form>
   </div>
 
-  <!-- MODAL ADAUGARE CREDITE SUPLIMENTARE (FORMULAR POST MVC) -->
+  <!-- MODAL ADAUGARE CREDITE SUPLIMENTARE -->
   <div id="creditModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
     <form id="creditForm" method="POST" class="bg-[#121215] border-2 border-[#d4af37] p-7 rounded-2xl w-full max-w-md space-y-5 shadow-2xl">
       <div>

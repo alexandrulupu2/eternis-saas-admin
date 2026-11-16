@@ -132,4 +132,14 @@ export declare class AppController {
         crediteRamase: number;
         message?: undefined;
     }>;
+    getAdminConversii(): Promise<{
+        id_utilizator: number;
+        tip_conversie: string;
+        prompt_input: string;
+        rezultat_output: string;
+        credite_consumate: number;
+        data_conversie: Date;
+        id_conversie: number;
+        id_decedat: number | null;
+    }[]>;
 }

@@ -100,14 +100,15 @@ let AppController = class AppController {
         };
     }
     async generateAi(body) {
+        const userId = Number(body.userId);
         const user = await this.prisma.utilizatori.findUnique({
-            where: { id_utilizator: Number(body.userId) },
+            where: { id_utilizator: userId },
         });
         if (!user || user.credite_disponibile <= 0) {
             return { success: false, message: 'Credite AI insuficiente!' };
         }
         const updated = await this.prisma.utilizatori.update({
-            where: { id_utilizator: Number(body.userId) },
+            where: { id_utilizator: userId },
             data: { credite_disponibile: { decrement: 1 } },
         });
         const texte = {
@@ -115,11 +116,27 @@ let AppController = class AppController {
             necrolog: `Cu adâncă durere în suflet, ne luăm rămas bun de la cel plecat pe drumul veșniciei. Amintirea și bunătatea sa vor rămâne pururea vii în inimile noastre (${body.tema}). Dumnezeu să-l odihnească în pace!`,
             anunt: `ANUNȚ PAROHIAL:\nVă aducem la cunoștință organizarea activității parohiale cu tema: „${body.tema}”. Vă așteptăm cu drag alături de comunitatea noastră!`,
         };
+        const generatedText = texte[body.tip_text] || texte.predica;
+        await this.prisma.conversii_ai.create({
+            data: {
+                id_utilizator: userId,
+                tip_conversie: (body.tip_text || 'PREDICA').toUpperCase(),
+                prompt_input: body.tema || 'Fără temă specificată',
+                rezultat_output: generatedText,
+                credite_consumate: 1,
+            },
+        });
         return {
             success: true,
-            text: texte[body.tip_text] || texte.predica,
+            text: generatedText,
             crediteRamase: updated.credite_disponibile,
         };
+    }
+    async getAdminConversii() {
+        return await this.prisma.conversii_ai.findMany({
+            orderBy: { id_conversie: 'desc' },
+            take: 20,
+        });
     }
 };
 exports.AppController = AppController;
@@ -185,6 +202,12 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "generateAi", null);
+__decorate([
+    (0, common_1.Get)('admin/conversii'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getAdminConversii", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)('api'),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])

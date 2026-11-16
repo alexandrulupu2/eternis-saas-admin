@@ -5,7 +5,6 @@ import { PrismaService } from './prisma.service';
 export class AdminMvcController {
   constructor(private readonly prisma: PrismaService) {}
 
-  // VIEW + MODEL: Randeaza pagina HTML direct din serverul NestJS (MVC)
   @Get()
   @Render('admin')
   async getAdminPage() {
@@ -25,7 +24,6 @@ export class AdminMvcController {
     };
   }
 
-  // ACTIUNE MVC: Inrolare parohie / preot nou prin formular HTML POST
   @Post('users/create')
   @Redirect('/admin')
   async createUser(
@@ -43,7 +41,6 @@ export class AdminMvcController {
     });
   }
 
-  // ACTIUNE MVC: Adaugare credite suplimentare personalizate
   @Post('users/:id/credits')
   @Redirect('/admin')
   async addCustomCredits(@Param('id') id: string, @Body() body: { amount: string }) {
@@ -54,7 +51,6 @@ export class AdminMvcController {
     });
   }
 
-  // ACTIUNE MVC: Stergere utilizator
   @Post('users/:id/delete')
   @Redirect('/admin')
   async deleteUser(@Param('id') id: string) {
