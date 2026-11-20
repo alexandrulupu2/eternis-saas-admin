@@ -19,7 +19,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.role === "ADMIN") window.location.href = "http://localhost:3001/admin";
+        if (data.role === "ADMIN") router.push("/admin");
         else router.push(`/user?userId=${data.userId}`);
       } else {
         setError(data.message);
