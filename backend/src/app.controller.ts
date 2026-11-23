@@ -1,13 +1,22 @@
 ﻿import { Controller, Get, Post, Put, Body, Param, Delete, Inject } from '@nestjs/common';
 import { NIVEL_SERVICII_TOKEN } from './nivel-servicii.interface';
 import type { INivelServicii } from './nivel-servicii.interface';
+import {
+  AddCreditsDto,
+  CreateUserDto,
+  GenerateAiDto,
+  LoginDto,
+  UpdatePlanDto,
+  UpdateUserDto,
+  UpgradeUserDto,
+} from './dto';
 
 @Controller('api')
 export class AppController {
   constructor(@Inject(NIVEL_SERVICII_TOKEN) private readonly nivelServicii: INivelServicii) {}
 
   @Post('login')
-  async login(@Body() body: { email: string; parola: string }) {
+  async login(@Body() body: LoginDto) {
     return this.nivelServicii.login(body.email, body.parola);
   }
 
@@ -18,36 +27,17 @@ export class AppController {
   }
 
   @Post('admin/users')
-  async createUser(
-    @Body()
-    body: {
-      email_utilizator: string;
-      parola_hash: string;
-      rol_utilizator: string;
-      credite_disponibile: number;
-      id_abonament?: number;
-    },
-  ) {
+  async createUser(@Body() body: CreateUserDto) {
     return this.nivelServicii.createUser(body);
   }
 
   @Put('admin/users/:id')
-  async updateUser(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      email_utilizator?: string;
-      parola_hash?: string;
-      rol_utilizator?: string;
-      credite_disponibile?: number;
-      id_abonament?: number;
-    },
-  ) {
+  async updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.nivelServicii.updateUser(Number(id), body);
   }
 
   @Post('admin/users/:id/credits')
-  async addCredits(@Param('id') id: string, @Body() body: { amount?: number }) {
+  async addCredits(@Param('id') id: string, @Body() body: AddCreditsDto) {
     return this.nivelServicii.addCredits(Number(id), body?.amount);
   }
 
@@ -63,10 +53,7 @@ export class AppController {
   }
 
   @Put('admin/plans/:id')
-  async updatePlan(
-    @Param('id') id: string,
-    @Body() body: { nume_plan?: string; pret_simulat?: number; credite_lunare?: number },
-  ) {
+  async updatePlan(@Param('id') id: string, @Body() body: UpdatePlanDto) {
     return this.nivelServicii.updatePlan(Number(id), body);
   }
 
@@ -88,14 +75,12 @@ export class AppController {
   }
 
   @Post('user/upgrade')
-  async upgradeUser(@Body() body: { userId: number; id_abonament?: number; crediteExtra: number }) {
-    return this.nivelServicii.upgradeUser(Number(body.userId), body.id_abonament, body.crediteExtra);
+  async upgradeUser(@Body() body: UpgradeUserDto) {
+    return this.nivelServicii.upgradeUser(body.userId, body.id_abonament, body.crediteExtra);
   }
 
   @Post('user/generate-ai')
-  async generateAi(@Body() body: { userId: number; tip_text: string; tema: string }) {
-    return this.nivelServicii.generateAi(Number(body.userId), body.tip_text, body.tema);
+  async generateAi(@Body() body: GenerateAiDto) {
+    return this.nivelServicii.generateAi(body.userId, body.tip_text, body.tema);
   }
 }
-
-

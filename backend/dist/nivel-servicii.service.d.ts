@@ -141,11 +141,11 @@ export declare class NivelServicii implements INivelServicii {
         data_conversie: Date;
     })[]>;
     getAdminTranzactii(): Promise<({
-        abonamente: {
-            nume_plan: string;
-        };
         utilizatori: {
             email_utilizator: string;
+        };
+        abonamente: {
+            nume_plan: string;
         };
     } & {
         id_utilizator: number;

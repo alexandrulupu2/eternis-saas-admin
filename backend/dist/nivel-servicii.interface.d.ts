@@ -1,3 +1,4 @@
+import { CreateUserDto, UpdatePlanDto, UpdateUserDto } from './dto';
 export declare const NIVEL_SERVICII_TOKEN = "NIVEL_SERVICII_TOKEN";
 export interface INivelServicii {
     login(email: string, parola: string): Promise<any>;
@@ -6,28 +7,18 @@ export interface INivelServicii {
         users: any[];
         totalUsers: number;
     }>;
-    createUser(data: {
+    createUser(data: CreateUserDto | {
         email_utilizator: string;
         parola_hash: string;
         rol_utilizator?: string;
         credite_disponibile?: number | string;
         id_abonament?: number;
     }): Promise<any>;
-    updateUser(id: number, data: {
-        email_utilizator?: string;
-        parola_hash?: string;
-        rol_utilizator?: string;
-        credite_disponibile?: number;
-        id_abonament?: number;
-    }): Promise<any>;
+    updateUser(id: number, data: UpdateUserDto): Promise<any>;
     addCredits(id: number, amount?: number | string): Promise<any>;
     deleteUserWithHistory(id: number): Promise<any>;
     getPlans(): Promise<any[]>;
-    updatePlan(id: number, data: {
-        nume_plan?: string;
-        pret_simulat?: number;
-        credite_lunare?: number;
-    }): Promise<any>;
+    updatePlan(id: number, data: UpdatePlanDto): Promise<any>;
     getAdminConversii(): Promise<any[]>;
     getAdminTranzactii(): Promise<any[]>;
     getUserDashboard(id: number): Promise<any>;

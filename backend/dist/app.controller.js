@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const nivel_servicii_interface_1 = require("./nivel-servicii.interface");
+const dto_1 = require("./dto");
 let AppController = class AppController {
     nivelServicii;
     constructor(nivelServicii) {
@@ -54,10 +55,10 @@ let AppController = class AppController {
         return this.nivelServicii.getUserDashboard(Number(id));
     }
     async upgradeUser(body) {
-        return this.nivelServicii.upgradeUser(Number(body.userId), body.id_abonament, body.crediteExtra);
+        return this.nivelServicii.upgradeUser(body.userId, body.id_abonament, body.crediteExtra);
     }
     async generateAi(body) {
-        return this.nivelServicii.generateAi(Number(body.userId), body.tip_text, body.tema);
+        return this.nivelServicii.generateAi(body.userId, body.tip_text, body.tema);
     }
 };
 exports.AppController = AppController;
@@ -65,7 +66,7 @@ __decorate([
     (0, common_1.Post)('login'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "login", null);
 __decorate([
@@ -78,7 +79,7 @@ __decorate([
     (0, common_1.Post)('admin/users'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "createUser", null);
 __decorate([
@@ -86,7 +87,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, dto_1.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "updateUser", null);
 __decorate([
@@ -94,7 +95,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, dto_1.AddCreditsDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "addCredits", null);
 __decorate([
@@ -115,7 +116,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, dto_1.UpdatePlanDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "updatePlan", null);
 __decorate([
@@ -141,14 +142,14 @@ __decorate([
     (0, common_1.Post)('user/upgrade'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dto_1.UpgradeUserDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "upgradeUser", null);
 __decorate([
     (0, common_1.Post)('user/generate-ai'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dto_1.GenerateAiDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "generateAi", null);
 exports.AppController = AppController = __decorate([
