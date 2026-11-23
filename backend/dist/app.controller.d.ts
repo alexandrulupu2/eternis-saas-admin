@@ -1,7 +1,7 @@
-import { PrismaService } from './prisma.service';
+import { NivelServicii } from './nivel-servicii.service';
 export declare class AppController {
-    private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly nivelServicii;
+    constructor(nivelServicii: NivelServicii);
     login(body: {
         email: string;
         parola: string;
@@ -125,11 +125,11 @@ export declare class AppController {
         data_conversie: Date;
     })[]>;
     getAdminTranzactii(): Promise<({
-        abonamente: {
-            nume_plan: string;
-        };
         utilizatori: {
             email_utilizator: string;
+        };
+        abonamente: {
+            nume_plan: string;
         };
     } & {
         id_utilizator: number;
@@ -188,11 +188,11 @@ export declare class AppController {
     }): Promise<{
         success: boolean;
         message: string;
-        text?: undefined;
+        rezultat?: undefined;
         crediteRamase?: undefined;
     } | {
         success: boolean;
-        text: string;
+        rezultat: string;
         crediteRamase: number;
         message?: undefined;
     }>;

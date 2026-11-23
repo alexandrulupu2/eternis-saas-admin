@@ -1,7 +1,7 @@
-import { PrismaService } from './prisma.service';
+import { NivelServicii } from './nivel-servicii.service';
 export declare class AdminMvcController {
-    private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly nivelServicii;
+    constructor(nivelServicii: NivelServicii);
     getAdminPage(): Promise<{
         users: {
             planName: string;

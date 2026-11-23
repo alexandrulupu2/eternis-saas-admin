@@ -14,49 +14,23 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminMvcController = void 0;
 const common_1 = require("@nestjs/common");
-const prisma_service_1 = require("./prisma.service");
+const nivel_servicii_service_1 = require("./nivel-servicii.service");
 let AdminMvcController = class AdminMvcController {
-    prisma;
-    constructor(prisma) {
-        this.prisma = prisma;
+    nivelServicii;
+    constructor(nivelServicii) {
+        this.nivelServicii = nivelServicii;
     }
     async getAdminPage() {
-        const users = await this.prisma.utilizatori.findMany({
-            include: { abonamente: true },
-            orderBy: { id_utilizator: 'asc' },
-        });
-        const formattedUsers = users.map((u) => ({
-            ...u,
-            planName: u.abonamente ? u.abonamente.nume_plan : 'Plan Free',
-        }));
-        return {
-            users: formattedUsers,
-            totalUsers: formattedUsers.length,
-        };
+        return this.nivelServicii.getFormattedUsersForMvc();
     }
     async createUser(body) {
-        const defaultPlan = await this.prisma.abonamente.findFirst();
-        await this.prisma.utilizatori.create({
-            data: {
-                email_utilizator: body.email_utilizator,
-                parola_hash: body.parola_hash,
-                rol_utilizator: 'USER',
-                credite_disponibile: Number(body.credite_disponibile) || 15,
-                id_abonament: defaultPlan ? defaultPlan.id_abonament : 1,
-            },
-        });
+        await this.nivelServicii.createUser(body);
     }
     async addCustomCredits(id, body) {
-        const amountToAdd = Number(body.amount) > 0 ? Number(body.amount) : 10;
-        await this.prisma.utilizatori.update({
-            where: { id_utilizator: Number(id) },
-            data: { credite_disponibile: { increment: amountToAdd } },
-        });
+        await this.nivelServicii.addCredits(Number(id), body.amount);
     }
     async deleteUser(id) {
-        await this.prisma.utilizatori.delete({
-            where: { id_utilizator: Number(id) },
-        });
+        await this.nivelServicii.deleteUserWithHistory(Number(id));
     }
 };
 exports.AdminMvcController = AdminMvcController;
@@ -94,6 +68,6 @@ __decorate([
 ], AdminMvcController.prototype, "deleteUser", null);
 exports.AdminMvcController = AdminMvcController = __decorate([
     (0, common_1.Controller)('admin'),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [nivel_servicii_service_1.NivelServicii])
 ], AdminMvcController);
 //# sourceMappingURL=admin.mvc.controller.js.map
