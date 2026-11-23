@@ -14,7 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
-const nivel_servicii_service_1 = require("./nivel-servicii.service");
+const nivel_servicii_interface_1 = require("./nivel-servicii.interface");
 let AppController = class AppController {
     nivelServicii;
     constructor(nivelServicii) {
@@ -153,6 +153,7 @@ __decorate([
 ], AppController.prototype, "generateAi", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)('api'),
-    __metadata("design:paramtypes", [nivel_servicii_service_1.NivelServicii])
+    __param(0, (0, common_1.Inject)(nivel_servicii_interface_1.NIVEL_SERVICII_TOKEN)),
+    __metadata("design:paramtypes", [Object])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map

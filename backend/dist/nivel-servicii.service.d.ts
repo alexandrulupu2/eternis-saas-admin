@@ -1,5 +1,6 @@
 import { PrismaService } from './prisma.service';
-export declare class NivelServicii {
+import { INivelServicii } from './nivel-servicii.interface';
+export declare class NivelServicii implements INivelServicii {
     private readonly prisma;
     constructor(prisma: PrismaService);
     login(email: string, parola: string): Promise<{
@@ -140,11 +141,11 @@ export declare class NivelServicii {
         data_conversie: Date;
     })[]>;
     getAdminTranzactii(): Promise<({
-        utilizatori: {
-            email_utilizator: string;
-        };
         abonamente: {
             nume_plan: string;
+        };
+        utilizatori: {
+            email_utilizator: string;
         };
     } & {
         id_utilizator: number;

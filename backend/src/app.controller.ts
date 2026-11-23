@@ -1,9 +1,10 @@
-﻿import { Controller, Get, Post, Put, Body, Param, Delete } from '@nestjs/common';
-import { NivelServicii } from './nivel-servicii.service';
+﻿import { Controller, Get, Post, Put, Body, Param, Delete, Inject } from '@nestjs/common';
+import { NIVEL_SERVICII_TOKEN } from './nivel-servicii.interface';
+import type { INivelServicii } from './nivel-servicii.interface';
 
 @Controller('api')
 export class AppController {
-  constructor(private readonly nivelServicii: NivelServicii) {}
+  constructor(@Inject(NIVEL_SERVICII_TOKEN) private readonly nivelServicii: INivelServicii) {}
 
   @Post('login')
   async login(@Body() body: { email: string; parola: string }) {
@@ -96,3 +97,5 @@ export class AppController {
     return this.nivelServicii.generateAi(Number(body.userId), body.tip_text, body.tema);
   }
 }
+
+

@@ -1,9 +1,10 @@
-﻿import { Controller, Get, Post, Body, Param, Render, Redirect } from '@nestjs/common';
-import { NivelServicii } from './nivel-servicii.service';
+﻿import { Controller, Get, Post, Body, Param, Render, Redirect, Inject } from '@nestjs/common';
+import { NIVEL_SERVICII_TOKEN } from './nivel-servicii.interface';
+import type { INivelServicii } from './nivel-servicii.interface';
 
 @Controller('admin')
 export class AdminMvcController {
-  constructor(private readonly nivelServicii: NivelServicii) {}
+  constructor(@Inject(NIVEL_SERVICII_TOKEN) private readonly nivelServicii: INivelServicii) {}
 
   @Get()
   @Render('admin')
@@ -31,3 +32,5 @@ export class AdminMvcController {
     await this.nivelServicii.deleteUserWithHistory(Number(id));
   }
 }
+
+

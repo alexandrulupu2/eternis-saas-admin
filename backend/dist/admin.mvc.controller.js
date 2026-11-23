@@ -14,7 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminMvcController = void 0;
 const common_1 = require("@nestjs/common");
-const nivel_servicii_service_1 = require("./nivel-servicii.service");
+const nivel_servicii_interface_1 = require("./nivel-servicii.interface");
 let AdminMvcController = class AdminMvcController {
     nivelServicii;
     constructor(nivelServicii) {
@@ -68,6 +68,7 @@ __decorate([
 ], AdminMvcController.prototype, "deleteUser", null);
 exports.AdminMvcController = AdminMvcController = __decorate([
     (0, common_1.Controller)('admin'),
-    __metadata("design:paramtypes", [nivel_servicii_service_1.NivelServicii])
+    __param(0, (0, common_1.Inject)(nivel_servicii_interface_1.NIVEL_SERVICII_TOKEN)),
+    __metadata("design:paramtypes", [Object])
 ], AdminMvcController);
 //# sourceMappingURL=admin.mvc.controller.js.map

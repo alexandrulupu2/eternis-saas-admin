@@ -1,25 +1,9 @@
-import { NivelServicii } from './nivel-servicii.service';
+import type { INivelServicii } from './nivel-servicii.interface';
 export declare class AdminMvcController {
     private readonly nivelServicii;
-    constructor(nivelServicii: NivelServicii);
+    constructor(nivelServicii: INivelServicii);
     getAdminPage(): Promise<{
-        users: {
-            planName: string;
-            abonamente: {
-                id_abonament: number;
-                nume_plan: string;
-                credite_lunare: number;
-                pret_simulat: import("@prisma/client/runtime/library").Decimal;
-            };
-            id_utilizator: number;
-            id_client: number | null;
-            email_utilizator: string;
-            parola_hash: string;
-            rol_utilizator: string;
-            id_abonament: number;
-            credite_disponibile: number;
-            data_creare: Date;
-        }[];
+        users: any[];
         totalUsers: number;
     }>;
     createUser(body: {

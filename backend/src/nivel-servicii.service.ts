@@ -1,8 +1,9 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
+import { INivelServicii } from './nivel-servicii.interface';
 
 @Injectable()
-export class NivelServicii {
+export class NivelServicii implements INivelServicii {
   constructor(private readonly prisma: PrismaService) {}
 
   // ==================== AUTENTIFICARE ====================
@@ -253,4 +254,5 @@ export class NivelServicii {
     };
   }
 }
+
 
